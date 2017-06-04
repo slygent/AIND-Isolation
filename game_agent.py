@@ -34,7 +34,7 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    return len(game.get_legal_moves())
+    return len(game.get_legal_moves(player))
 
 
 def custom_score_2(game, player):
@@ -173,24 +173,15 @@ class MinimaxPlayer(IsolationPlayer):
         """Return score of game, using minimum or maximum of scores of child moves"""
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
-        if not game.get_legal_moves():
-            return game.utility(game.active_player)
-        if depth == 0:
-            return self.score(game, game.active_player)
+        current_legal_moves = game.get_legal_moves()
+        if depth == 0 or not current_legal_moves:
+            return self.score(game, self)
         if minormax == "min":
-            current_best_move_score = float("inf")
-            for move in game.get_legal_moves():
-                if self.game_value(game.forecast_move(move), depth - 1, "max") < current_best_move_score:
-                    current_best_move_score = self.game_value(game.forecast_move(move), depth - 1, "max")
+            current_best_move_score = min([self.game_value(game.forecast_move(move), depth - 1, "max") for move in current_legal_moves])
             return current_best_move_score
         elif minormax == "max":
-            current_best_move_score = float("-inf")
-            for move in game.get_legal_moves():
-                if self.game_value(game.forecast_move(move), depth - 1, "min") > current_best_move_score:
-                    current_best_move_score = self.game_value(game.forecast_move(move), depth - 1, "min")
+            current_best_move_score = max([self.game_value(game.forecast_move(move), depth - 1, "min") for move in current_legal_moves])
             return current_best_move_score
-
-
 
     def minimax(self, game, depth):
         """Implement depth-limited minimax search algorithm as described in
@@ -237,7 +228,7 @@ class MinimaxPlayer(IsolationPlayer):
         current_best_move = (-1,-1)
         current_best_move_score = float("-inf")
 
-        for move in game.get_legal_moves():
+        for move in game.get_legal_moves(self):
             try:
                 move_score = self.game_value(game.forecast_move(move), depth - 1, "min")
                 if move_score > current_best_move_score:
