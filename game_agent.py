@@ -2,7 +2,7 @@
 test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
-import random
+
 from itertools import count
 from math import sqrt, pow
 
@@ -54,7 +54,7 @@ def custom_score_common(game, player, pars):
     diff_v_loc = pow(own_loc[0] - opp_loc[0], 2)
     diff_loc = sqrt(diff_h_loc + diff_v_loc)
 
-    # how far are the players from the centre?
+    # how far is the current player from the centre?
     board_centre_loc = (game.height / 2, game.width / 2)
     diff_loc_centre = sqrt(pow(own_loc[1] - board_centre_loc[1], 2) + pow(own_loc[0] - board_centre_loc[0], 2))
 
@@ -111,7 +111,7 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-    pars = (2,1,1,1)
+    pars = (1,1,1,1)
 
     return custom_score_common(game, player, pars)
 
