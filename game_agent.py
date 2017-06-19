@@ -10,12 +10,59 @@ class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
 
+def custom_score_common(game, player, pars):
+    """Calculate the heuristic value of a game state from the point of view
+    of the given player.
+
+    This function is common to all 3 custom scores, with its behaviour changed by passing in different parameters via `pars`.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    pars: tuple
+       The parameters that determine the scoring function.
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+    """
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    opp_player = game.get_opponent(player)
+
+    own_moves_n = len(game.get_legal_moves(player)) # how many moves can this player make?
+    opp_moves_n = len(game.get_legal_moves(opp_player)) # how many moves can the opposing player make?
+    diff_moves = own_moves_n - opp_moves_n # difference in number of moves between players
+
+    own_loc = game.get_player_location(player) # player's location
+    opp_loc = game.get_player_location(opp_player) # opposing player's location
+
+    # how far are the players from each other? the further the bigger number
+    diff_h_loc = pow(own_loc[1] - opp_loc[1], 2) 
+    diff_v_loc = pow(own_loc[0] - opp_loc[0], 2)
+    diff_loc = sqrt(diff_h_loc + diff_v_loc)
+
+    # how far are the players from the centre?
+    board_centre_loc = (game.height / 2, game.width / 2)
+    diff_loc_centre = sqrt(pow(own_loc[1] - board_centre_loc[1], 2) + pow(own_loc[0] - board_centre_loc[0], 2))
+
+    return pars[0]*own_moves_n + pars[1]*diff_moves + pars[2]*diff_loc + pars[3]*diff_loc_centre
 
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
-
-    This should be the best heuristic function for your project submission.
 
     Note: this function should be called from within a Player instance as
     `self.score()` -- you should not need to call this function directly.
@@ -35,30 +82,10 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    if game.is_loser(player):
-        return float("-inf")
 
-    if game.is_winner(player):
-        return float("inf")
+    pars = (2,1,1,2)
 
-    pars = (1,1,0,0)
-
-    opp_player = game.get_opponent(player)
-
-    own_moves_n = len(game.get_legal_moves(player))
-    opp_moves_n = len(game.get_legal_moves(opp_player))
-    diff_moves = own_moves_n - opp_moves_n
-
-    own_loc = game.get_player_location(player)
-    opp_loc = game.get_player_location(opp_player)
-    # how far are the players from each other, the further the bigger number
-    diff_h_loc = pow(own_loc[1] - opp_loc[1], 2)
-    diff_v_loc = pow(own_loc[0] - opp_loc[0], 2)
-    diff_loc = sqrt(diff_h_loc + diff_v_loc)
-    board_centre_loc = (game.height / 2, game.width / 2)
-    diff_loc_centre = sqrt(pow(own_loc[1] - board_centre_loc[1], 2) + pow(own_loc[0] - board_centre_loc[0], 2))
-
-    return pars[0]*own_moves_n + pars[1]*diff_moves + pars[2]*diff_loc + pars[3]*diff_loc_centre
+    return custom_score_common(game, player, pars)
 
 
 def custom_score_2(game, player):
@@ -83,35 +110,16 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    if game.is_loser(player):
-        return float("-inf")
-
-    if game.is_winner(player):
-        return float("inf")
 
     pars = (2,1,1,1)
 
-    opp_player = game.get_opponent(player)
-
-    own_moves_n = len(game.get_legal_moves(player))
-    opp_moves_n = len(game.get_legal_moves(opp_player))
-    diff_moves = own_moves_n - opp_moves_n
-
-    own_loc = game.get_player_location(player)
-    opp_loc = game.get_player_location(opp_player)
-    # how far are the players from each other, the further the bigger number
-    diff_h_loc = pow(own_loc[1] - opp_loc[1], 2)
-    diff_v_loc = pow(own_loc[0] - opp_loc[0], 2)
-    diff_loc = sqrt(diff_h_loc + diff_v_loc)
-    board_centre_loc = (game.height / 2, game.width / 2)
-    diff_loc_centre = sqrt(pow(own_loc[1] - board_centre_loc[1], 2) + pow(own_loc[0] - board_centre_loc[0], 2))
-
-    return pars[0]*own_moves_n + pars[1]*diff_moves + pars[2]*diff_loc + pars[3]*diff_loc_centre
-
+    return custom_score_common(game, player, pars)
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
+
+    This should be the best heuristic function for your project submission.
 
     Note: this function should be called from within a Player instance as
     `self.score()` -- you should not need to call this function directly.
@@ -131,30 +139,10 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    if game.is_loser(player):
-        return float("-inf")
+    
+    pars = (1,1,0,0)
 
-    if game.is_winner(player):
-        return float("inf")
-
-    pars = (2,1,1,2)
-
-    opp_player = game.get_opponent(player)
-
-    own_moves_n = len(game.get_legal_moves(player))
-    opp_moves_n = len(game.get_legal_moves(opp_player))
-    diff_moves = own_moves_n - opp_moves_n
-
-    own_loc = game.get_player_location(player)
-    opp_loc = game.get_player_location(opp_player)
-    # how far are the players from each other, the further the bigger number
-    diff_h_loc = pow(own_loc[1] - opp_loc[1], 2)
-    diff_v_loc = pow(own_loc[0] - opp_loc[0], 2)
-    diff_loc = sqrt(diff_h_loc + diff_v_loc)
-    board_centre_loc = (game.height / 2, game.width / 2)
-    diff_loc_centre = sqrt(pow(own_loc[1] - board_centre_loc[1], 2) + pow(own_loc[0] - board_centre_loc[0], 2))
-
-    return pars[0]*own_moves_n + pars[1]*diff_moves + pars[2]*diff_loc + pars[3]*diff_loc_centre
+    return custom_score_common(game, player, pars)
 
 
 class IsolationPlayer:
@@ -444,7 +432,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        current_best_move = (-1,-1)
+        current_best_move = (-1,-1) # default move [resign!]
 
         try:
             current_best_move, _ = self.game_value_ab(game, depth, alpha, beta, "max")
